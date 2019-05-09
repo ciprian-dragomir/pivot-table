@@ -1,0 +1,11 @@
+.pivot-table-container {
+  min-width: 300px;
+  min-height: 100px;
+
+  .pivot-table {
+    position: relative;
+    > * {
+      position: absolute;
+    }
+  }
+}
