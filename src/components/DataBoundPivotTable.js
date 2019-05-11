@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PivotTable from './PivotTable';
-import pivotTableDataProvider from './PivotTableDataProvider';
+import pivotTableDataProvider from '../data/PivotTableDataProvider';
 
 export default class DataBoundPivotTable extends React.Component {
 
@@ -22,8 +22,11 @@ export default class DataBoundPivotTable extends React.Component {
 
   componentDidMount() {
     console.log('Component did mount', this.props);
-    console.log(this.tableRef.current);
     this.setState({ containerAvailable: true });
+  }
+
+  refresh() {
+    this.forceUpdate();
   }
 
   render() {
@@ -45,7 +48,7 @@ export default class DataBoundPivotTable extends React.Component {
               width: containerNode.offsetWidth,
               height: containerNode.offsetHeight,
             }}
-            getData={pivotTableDataProvider(this.props.dataSource)}
+            getData={pivotTableDataProvider(this.props.dataSource, () => this.refresh() )}
           /> :
           null}
       </div>

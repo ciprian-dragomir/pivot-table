@@ -50,15 +50,30 @@ const PivotTable = (props) => {
   const columnsVisible = Math.min(columnCount, Math.ceil(parentWidth / columnWidth));
 
   console.log(rowsVisible, columnsVisible);
-  console.log(getData({rowStart, columnStart, rowCount: rowsVisible, columnCount: columnsVisible }));
+  const { getCellAt, getColumnLabelAt, getRowLabelAt } = getData({rowStart, columnStart, rowCount: rowsVisible, columnCount: columnsVisible });
+
+  const cellElements = [];
+  const rowLabelElements = [];
+  const columnLabelElements = [];
+
+  for(let i = rowStart; i < rowsVisible; ++i) {
+    let label = getRowLabelAt(i);
+    
+
+    for(let j = columnStart; j < columnsVisible; ++j) {
+      let cell = getCellAt(i, j);
+      cell = typeof cell.value !== 'undefined' ? cell.value : cell;
+      cellElements.push(
+        <div key={`cell-${i}-${j}`} className={`r${i} c${j}`}>{cell}</div>
+      );
+    }
+  }
 
   const tableId = `t_${id}`;
   return (
     <div className="pivot-table" id={tableId}>
       <style>{generateTableCss({ id: tableId, rowsVisible, columnsVisible, rowHeight, columnWidth })}</style>
-
-      <div className="r1 c1" style={{backgroundColor: 'green'}} />
-      <div className="r3 c4" style={{backgroundColor: 'green'}} />
+      {cellElements}
     </div>
   );
 };

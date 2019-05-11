@@ -1,6 +1,11 @@
 .pivot-table-container {
   min-width: 300px;
-  min-height: 100px;
+  min-height: 250px;
+  max-height: 500px;
+
+  margin: 10px;
+  border: 1px solid #CCC;
+  overflow: hidden;
 
   .pivot-table {
     position: relative;
