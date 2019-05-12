@@ -10,5 +10,8 @@ export const Dimensions = Object.freeze({
 
 export const DimensionNames = Object.freeze({
   [Dimensions.Category]: 'Category',
-  [Dimensions.Category]: 'Sub-Category',
+  [Dimensions.SubCategory]: 'Sub-Category',
+  [Dimensions.State]: 'State',
+  [Dimensions.Region]: 'Region',
+  [Dimensions.City]: 'City',
 });

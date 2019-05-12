@@ -1,54 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PivotTable from './PivotTable';
-import pivotTableDataProvider from '../data/PivotTableDataProvider';
+import '../data/FetchMock';
 
 export default class DataBoundPivotTable extends React.Component {
 
   static propTypes = {
-    dataSource: PropTypes.func.isRequired,
+    dataSource: PropTypes.string.isRequired,
   }
 
   constructor(props) {
     super(props);
-    this.tableRef = React.createRef();
     this.state = {
-      containerAvailable: false,
-      // Delegate from props later
-      startRow: 0,
-      startColumn: 0,
+      data: null,
     };
   }
 
   componentDidMount() {
     console.log('Component did mount', this.props);
-    this.setState({ containerAvailable: true });
-  }
-
-  refresh() {
-    this.forceUpdate();
+    fetch(this.props.dataSource)
+      .then(response => response.json())
+      .then((data) => this.setState({ data }));
   }
 
   render() {
 
-    const { rowCount, columnCount, id } = this.props;
-    const { startRow, startColumn } = this.state;
-    const containerNode = this.tableRef.current;
+    const { id, title } = this.props;
 
     return (
       <div className='pivot-table-container' ref={this.tableRef}>
-        {this.state.containerAvailable ?
+        {this.state.data ?
           <PivotTable
             id={id}
-            rowCount={rowCount}
-            columnCount={columnCount}
-            startColumn={startColumn}
-            startRow={startRow}
-            parentSize={{ 
-              width: containerNode.offsetWidth,
-              height: containerNode.offsetHeight,
-            }}
-            getData={pivotTableDataProvider(this.props.dataSource, () => this.refresh() )}
+            title={title}
+            data={this.state.data}
           /> :
           null}
       </div>

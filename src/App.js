@@ -2,27 +2,42 @@ import React from 'react';
 import './App.scss';
 import { Dimensions } from './data/Dimensions';
 import DataBoundPivotTable from './components/DataBoundPivotTable';
+import Metrics from './data/Metrics';
 
-const makeURL = (exampleId, rowDimensions, columnDimensions) =>
-  ({ rowStart, columnStart, rowCount, columnCount }) =>
-    `https://api.mottion.com/ds/${exampleId}?rows=${rowDimensions.join(',')}&columns=${columnDimensions.join(',')}&rowStart=${rowStart}&columnStart=${columnStart}&rowCount=${rowCount}&columnCount=${columnCount}`;
+const makeURL = (exampleId, rowDimensions, columnDimensions, metric) =>
+    `https://api.mottion.com/ds/${exampleId}?rows=${rowDimensions.join(',')}&columns=${columnDimensions.join(',')}&metric=${metric}`;
 
 const examples = [
   {
     id: 'example1',
-    rowCount: 10,
-    columnCount: 10,
     rowDimensions: [Dimensions.Category, Dimensions.SubCategory],
     columnDimensions: [Dimensions.State],
+    metric: Metrics.Sales,
+    title: ['PRODUCT', 'STATES'],
   },
   {
     id: 'example2',
-    rowCount: 20,
-    columnCount: 100,
     rowDimensions: [Dimensions.Category, Dimensions.SubCategory],
     columnDimensions: [Dimensions.Region, Dimensions.State],
+    metric: Metrics.Sales,
+    title: ['PRODUCT', 'STATES'],
+  },
+  {
+    id: 'example3',
+    rowDimensions: [Dimensions.Category],
+    columnDimensions: [Dimensions.Region, Dimensions.State, Dimensions.City],
+    metric: Metrics.Sales,
+    title: ['PRODUCT', 'STATES'],
   }
-].map(example => ({ ...example, dataSource: makeURL(example.id, example.rowDimensions, example.columnDimensions) }));
+].map(example => ({
+  ...example,
+  dataSource: makeURL(
+    example.id,
+    example.rowDimensions,
+    example.columnDimensions,
+    example.metric,
+  )
+}));
 
 function App() {
   return (

@@ -7,25 +7,19 @@ const parseURL = (url) => {
   rowDimensions = rowDimensions ? rowDimensions.split(',') : [];
   let columnDimensions = params.get('columns');
   columnDimensions = columnDimensions ? columnDimensions.split(',') : [];
-  const region = ['rowStart', 'columnStart', 'rowCount', 'columnCount'].reduce(
-    (acc, prop) => {
-      acc[prop] = +params.get(prop);
-      return acc;
-    },
-    {}
-  );
+  let metric = params.get('metric');
 
-  return { rowDimensions, columnDimensions, region };
+  return { rowDimensions, columnDimensions, metric };
 };
 
-const getStructuredRecords = (dimensions, records) => {
+const getDataFromRecords = (dimensions, records, metric, aggregate = (a, b) => a + b) => {
   const res = {};
   records.forEach((record) => {
     let tar = res;
     dimensions.forEach((dim, i) => {
       if (!tar[record[dim]]) {
         if (i === dimensions.length - 1) {
-          tar[record[dim]] = [];
+          tar[record[dim]] = aggregate ? { value: 0 } : null;
         } else {
           tar[record[dim]] = {};
         }
@@ -34,59 +28,33 @@ const getStructuredRecords = (dimensions, records) => {
       tar = tar[record[dim]];
     });
 
-    tar.push(record);
+    if (aggregate) {
+      tar.value = aggregate(tar.value, record[metric]);
+    }
   });
 
   return res;
 };
 
-const getDimensionElements = (dimensions, records) => {
-  const elements = dimensions.reduce((acc, dim) => {
-    acc[dim] = new Set();
-    return acc;
-  }, {});
-
-  records.forEach(record => {
-    dimensions.forEach(d => elements[d].add(record[d]));
-  });
-
-  return Object.entries(elements).reduce((acc, [k, v]) => {
-    acc[k] = [...v].sort((a, b) => a.localeCompare(b));
-    return acc;
-  }, {});
-};
-
-const dataQuery = ({ rowDimensions, columnDimensions, region }) => {
+const dataQuery = ({ rowDimensions, columnDimensions, metric }) => {
   const dimensions = rowDimensions.concat(columnDimensions);
-  const { rowStart, columnStart, rowCount, columnCount } = region;
+  const rows = getDataFromRecords(dimensions, SalesOrders, metric);
+  const columns = getDataFromRecords(columnDimensions, SalesOrders, metric, false);
 
-  const dimensionalElements = getDimensionElements(dimensions, SalesOrders);
-  const rows = dimensionalElements[rowDimensions[rowDimensions.length - 1]];
-  const columns = dimensionalElements[columnDimensions[columnDimensions.length - 1]];
-
-
-
-  // SalesOrders.reduce((acc, order) => {
-
-  // },
-  // { rowLabels: {}, columnLabels: {}, cells: {} });
-  const structuredRecords = getStructuredRecords(dimensions, SalesOrders);
-  const structuredColumnRecords = getStructuredRecords(columnDimensions, SalesOrders);
-  
-
-  console.log(structuredRecords, structuredColumnRecords);
+  console.log(rows, columns);
+  return {
+    rows, columns, rowDimensions, columnDimensions,
+  }
 };
 
 Object.assign(fetchMock.config, {
   fallbackToNetwork: true,
   warnOnFallback: false,
 });
+
 fetchMock.mock(
   (url) => url.startsWith('https://api.mottion.com/ds'),
   (url) => {
     console.log('Fetch called with url', url);
-    const query = parseURL(url);
-    dataQuery(query);
-
-    return { cells: [], rowLabels: [], columnLabels: [] };
+    return dataQuery(parseURL(url));
   });
