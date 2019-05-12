@@ -32,13 +32,20 @@ const translateColumns = (columns, sort = (a, b) => a.localeCompare(b)) => {
 };
 
 const applyLeafDescendantCount = (columnsArr, level) => {
-  return columnsArr.map(column => ({
-    ...column,
-    leafDescendantCount: level === 1
-      ? 1
-      : applyLeafDescendantCount(column.children, level - 1)
-        .reduce((sum, { leafDescendantCount }) => sum + leafDescendantCount, 0),
-  }));
+  return columnsArr.map(column => {
+    let leafDescendantCount = 1;
+    let children = column.children;
+    if (level > 1) {
+      children = applyLeafDescendantCount(column.children, level - 1);
+      leafDescendantCount = children.reduce((sum, { leafDescendantCount }) => sum + leafDescendantCount, 0);
+    }
+
+    return {
+      ...column,
+      children,
+      leafDescendantCount,
+    };
+  });
 };
 
 const getRenderers = ({ formatValue, nextKey }) => {
@@ -91,10 +98,15 @@ const getRenderers = ({ formatValue, nextKey }) => {
         ];
       }, []);
     },
-    renderHeader: (title, columns, level) => {
-      if (level === 1) {
-
+    renderColumnsAtLevel: (columns, level) => {
+      if (level === 0) {
+        return columns.map(({ name, leafDescendantCount }) => <th key={nextKey()} colSpan={leafDescendantCount}>{name}</th>);
       }
+
+      return columns.reduce((acc, column) => [
+        ...acc,
+        ...R.renderColumnsAtLevel(column.children, level - 1)],
+        []);
     },
     renderHeaderRows: (title, columns, rowDimensions, columnDimensions) => {
       const totalLeafCount = columns.reduce((totalLeafCount, { leafDescendantCount }) => totalLeafCount + leafDescendantCount, 0);
@@ -104,14 +116,15 @@ const getRenderers = ({ formatValue, nextKey }) => {
           <th className="title" colSpan={totalLeafCount}>{title[1]}</th>
         </tr>,
         ...columnDimensions.map((cd, i) =>
-          <tr>
-            {i < columnDimensions.length - 1 
-            ? <th className="column-dimension" colSpan={rowDimensions.length}>{DimensionNames[cd]}</th>
-            : rowDimensions.map((rd, j) => j < rowDimensions.length - 1 
-              ? <th className="row-dimension">{DimensionNames[rd]}</th>
-              : <th className="row-dimension">{`${DimensionNames[rd]}/${DimensionNames[cd]}`}</th>
+          <tr key={nextKey()} data-level={columnDimensions.length - i - 1}>
+            {i < columnDimensions.length - 1
+              ? <th key={nextKey()} className="column-dimension" colSpan={rowDimensions.length}>{DimensionNames[cd]}</th>
+              : rowDimensions.map((rd, j) => j < rowDimensions.length - 1
+                ? <th key={nextKey()} className="row-dimension">{DimensionNames[rd]}</th>
+                : <th key={nextKey()} className="row-dimension">{`${DimensionNames[rd]}/${DimensionNames[cd]}`}</th>
               )
             }
+            {R.renderColumnsAtLevel(columns, i)}
           </tr>
         ),
       ];
@@ -141,8 +154,6 @@ const PivotTable = (props) => {
 
   console.log('Traversed', rows);
   console.log('Translated columns', columns);
-  // console.log('Rendered by row', renderByRow(rows.children, rowDimensions.length - 1, []))
-  // Object.
 
   let nextKey = 0;
   const renderers = getRenderers({
