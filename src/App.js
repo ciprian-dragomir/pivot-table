@@ -13,22 +13,22 @@ const examples = [
     rowDimensions: [Dimensions.Category, Dimensions.SubCategory],
     columnDimensions: [Dimensions.State],
     metric: Metrics.Sales,
-    title: ['PRODUCT', 'STATES'],
+    title: ['PRODUCTS', 'STATES'],
   },
   {
     id: 'example2',
     rowDimensions: [Dimensions.Category, Dimensions.SubCategory],
     columnDimensions: [Dimensions.Region, Dimensions.State],
     metric: Metrics.Sales,
-    title: ['PRODUCT', 'STATES'],
+    title: ['PRODUCTS', 'STATES'],
   },
   {
     id: 'example3',
     rowDimensions: [Dimensions.Category],
     columnDimensions: [Dimensions.Region, Dimensions.State, Dimensions.City],
     metric: Metrics.Sales,
-    title: ['PRODUCT', 'STATES'],
-  }
+    title: ['PRODUCTS', 'CITIES'],
+  },
 ].map(example => ({
   ...example,
   dataSource: makeURL(

@@ -17,7 +17,6 @@ export default class DataBoundPivotTable extends React.Component {
   }
 
   componentDidMount() {
-    console.log('Component did mount', this.props);
     fetch(this.props.dataSource)
       .then(response => response.json())
       .then((data) => this.setState({ data }));

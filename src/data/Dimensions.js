@@ -14,4 +14,5 @@ export const DimensionNames = Object.freeze({
   [Dimensions.State]: 'State',
   [Dimensions.Region]: 'Region',
   [Dimensions.City]: 'City',
+  [Dimensions.Segment]: 'Segment',
 });

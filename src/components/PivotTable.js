@@ -48,7 +48,7 @@ const applyLeafDescendantCount = (columnsArr, level) => {
   });
 };
 
-const getRenderers = ({ formatValue, nextKey }) => {
+const getRenderers = ({ formatValue, nextKey, rowDimensions, columnDimensions, totals }) => {
   const R = Object.freeze({
     renderNodeByColumn: (rowNode, columns) => {
       if (!rowNode || !Array.isArray(columns) || columns.length === 0) {
@@ -63,6 +63,16 @@ const getRenderers = ({ formatValue, nextKey }) => {
           acc.push(el);
         }
 
+        return acc;
+      }, []);
+    },
+    renderTotalsByColumn: (branchTotals, columns) => {
+      return columns.reduce((acc, { name, children }) => {
+        if (children.length === 0) {
+          acc.push(<td className="total total--numeric" key={nextKey()}>{formatValue(branchTotals[name] || 0)}</td>);
+        } else {
+          acc.push(...R.renderTotalsByColumn(branchTotals, children));
+        }
         return acc;
       }, []);
     },
@@ -94,7 +104,10 @@ const getRenderers = ({ formatValue, nextKey }) => {
         return [
           ...acc,
           ...R.renderByRow(children, columns, level - 1, [...preceding, td]),
-          <tr key={nextKey()} className="total"><td colSpan={level + 1}>{`${label} total`}</td></tr>,
+          <tr key={nextKey()} className="total">
+            <td colSpan={rowDimensions.length}>{`${label} total`}</td>
+            {R.renderTotalsByColumn(totals[label], columns)}
+          </tr>,
         ];
       }, []);
     },
@@ -108,7 +121,7 @@ const getRenderers = ({ formatValue, nextKey }) => {
         ...R.renderColumnsAtLevel(column.children, level - 1)],
         []);
     },
-    renderHeaderRows: (title, columns, rowDimensions, columnDimensions) => {
+    renderHeaderRows: (title, columns) => {
       const totalLeafCount = columns.reduce((totalLeafCount, { leafDescendantCount }) => totalLeafCount + leafDescendantCount, 0);
       return [
         <tr key={nextKey()}>
@@ -142,9 +155,15 @@ const PivotTable = (props) => {
     title,
   } = props;
 
-  const tableId = `t_${id}`;
-  console.log('Render Pivot table', data);
-  const { rows: rowData, columns: columnData, rowDimensions, columnDimensions } = data;
+  const tableId = `pivotTable_${id}`;
+  const {
+    rows: rowData,
+    columns: columnData,
+    rowDimensions,
+    columnDimensions,
+    totals,
+    grandTotal,
+  } = data;
   // Rows and columns data structures differ
   const rows = traverseRows(rowData, rowDimensions.length);
   const columns = applyLeafDescendantCount(
@@ -152,12 +171,12 @@ const PivotTable = (props) => {
     columnDimensions.length,
   );
 
-  console.log('Traversed', rows);
-  console.log('Translated columns', columns);
-
   let nextKey = 0;
   const renderers = getRenderers({
+    rowDimensions,
+    columnDimensions,
     formatValue,
+    totals,
     nextKey: () => nextKey++,
   });
 
@@ -177,6 +196,12 @@ const PivotTable = (props) => {
             rowDimensions.length - 1,
           )}
         </tbody>
+        <tfoot>
+          <tr>
+            <th colSpan={rowDimensions.length}>Grand total</th>
+            {renderers.renderTotalsByColumn(grandTotal, columns)}
+          </tr>
+        </tfoot>
       </table>
     </div>
   );
@@ -188,7 +213,7 @@ PivotTable.propTypes = {
 };
 
 PivotTable.defaultProps = {
-  formatValue: v => Math.round(v),
+  formatValue: v => Math.round(v).toLocaleString(),
 };
 
 export default PivotTable;
