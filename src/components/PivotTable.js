@@ -164,7 +164,7 @@ const PivotTable = (props) => {
     totals,
     grandTotal,
   } = data;
-  console.log(rowData, columnData, totals, grandTotal);
+  // console.log(rowData, columnData, totals, grandTotal);
   // Rows and columns data structures differ
   const rows = traverseRows(rowData, rowDimensions.length);
   const columns = applyLeafDescendantCount(

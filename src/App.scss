@@ -20,6 +20,13 @@
 .app-examples {
   display: flex;
   flex-direction: column;
+
+  .example-description {
+    color: #333;
+    margin: 10px;
+    border-bottom: 1px solid #333;
+    p { font-size: .9em }
+  }
 }
 
 @import './components/PivotTable';

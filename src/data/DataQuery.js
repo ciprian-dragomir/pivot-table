@@ -48,6 +48,11 @@ const computeTotalsForDimension = (dimensionPredicate, columnDimension, records,
   }, {});
 };
 
+/**
+ * Generates a data structure sufficient and optimal for rendering
+ * a pivot table out of list of entries where each member can be
+ * a dimension and properties with numeric values can be featured as metrics.
+ */
 export default ({ rowDimensions, columnDimensions, metric }) => {
   const dimensions = rowDimensions.concat(columnDimensions);
   const rows = getDataFromRecords(dimensions, SalesOrders, metric);

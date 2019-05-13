@@ -4,7 +4,7 @@
 
   margin: 10px;
   overflow: auto;
-  font-size: 14px;
+  font-size: .9em;
 
   .pivot-table {
     display: inline-block;
@@ -70,19 +70,23 @@
         }
       }
 
+      th {
+        min-width: 120px;
+      }
+
       tbody {
         td[rowspan] {
           &::before {
             display: inline-block;
-            margin-right: 4px;
+            margin-right: 8px;
             content: '-';
             border-radius: 3px;
             background-color: #1268BC;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             color: white;
             text-align: center;
-            line-height: 1;
+            line-height: 1.1;
           }
         }
       }
@@ -104,9 +108,11 @@
       tfoot {
         background-color: #333333;
         color: white;
+        font-size: 1.1em;
 
         .total {
           background-color: #333333;
+          height: 30px;
         }
       }
     }
