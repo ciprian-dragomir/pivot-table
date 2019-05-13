@@ -1,0 +1,37 @@
+Description
+====
+
+The application illustrates a sequence of examples of pivot tables with various configurations. Specifically, row and column dimensions as well as the metric are configurable parameters for a table. Each example will render as a DataBoundPivotComponent which requests (on mount) the data necessary to render the table in the respective configuration. This is then supplied to the pure PivotTable component which synchronously generates an HTML table styled according to specification.
+
+The table configuration is captured in a URL - the table's data source. A DataBoundPivotComponent manages the data requirements of pivot tables using a simple "fetch" call. The receipt of this data signals a state update and a render of the PivotTable. "fetch-mock" was utilised to intercept the fetch call (which represents the boundary between client and server side computation) and handle the request client side. 
+
+The response is a minimal data structure extracted from the entries in sales-orders.json. Whilst the traversal and expansion of this structure occurs on the client side, the server is only tasked with querying and accumulating the resulting data set.
+
+Since dimensions are configurable, rendering the table requires recursive traversals of both row and column dimensions, served as hierarchical structures with depth equal to rowDimensions.length and columnDimensions.length respectively. An initial stage is also consider where properties required for colSpan and rowSpan are computed (i.e. leafDescendantCount) - this is also achieve using recursive routines.
+
+Limitations
+====
+
+One of the costly limitations (in the author's opinion) is the absence of frozen column and row labels (the table header and side). Whilst the project was started with a different approach in mind (based on dynamic style sheets and absolutely positioned table elements), this was soon abandoned as it was deemed infeasible given the time constraints. The approach originally opted for is demonstrated and adopted by the company I currently work for and also facilitates progressive data loading. Another acknowledgement in this respect is that the present solution does not scale well as it renders the entire table upfront. For datasets with 100000+ elements (cells) this becomes an issue and undermine the responsiveness of the application.
+
+
+Known Issues and Assumptions
+====
+
+Totals aggregation was included subsequently and due to time constraints, the algorithm is based on the assumption that dimension values are unique across all parent dimensions (e.g. the state 'Illinois' is always associated with region 'Central'). This is not the case however, a counter-example surfaces in example3, namely 'Bloomington' appears both with 'Indiana' and 'Illinois'. Thus, the totals calculations are incorrect for configurations where the assumption does not hold. 
+
+Notably, the assumption was only considered for totals computation and not for value distribution. The fact that each cell is uniquely identified by the row dimensional tuple (rowDimension1Value, rowDimension2Value, ...) and the column dimensional tuple (columnDimension1Value, columnDimension2Value, ...) is completely acknowledged and respected by the recursive algorithms described earlier.
+
+An issue was also observed in one experimental configuration whereby not all cells were rendered per row. Time did not permit further debugging for this case.
+
+Next Steps
+====
+
+1. Fix observed issues and re-implement totals aggregation more efficiently;
+2. Address the two most important limitations:
+  - Fix row and column labels in viewport (i.e. row labels should not scroll horizontally out of viewport and conversely for column labels);
+  - Implement a paging strategy such that data can be progressively loaded in a table;
+3. Aesthetic enhancements and more features:
+  - 'Sticky' grand totals;
+  - Interactive configuration builder.
+  - Selection and transformations (e.g. filter, sort on columns, rows);
