@@ -54,15 +54,6 @@
         }
       }
 
-      tfoot {
-        background-color: #333333;
-        color: white;
-
-        .total {
-          background-color: #333333;
-        }
-      }
-
       td {
         padding: 4px;
         min-width: 100px;
@@ -71,26 +62,53 @@
         &.cell--numeric {
           text-align: right;
         }
+
+        &[rowspan] {
+          padding-top: 6px;
+          vertical-align: top;
+          font-weight: bold;
+        }
       }
-    }
 
-    td[rowspan] {
-      vertical-align: top;
-      font-weight: bold;
-    }
+      tbody {
+        td[rowspan] {
+          &::before {
+            display: inline-block;
+            margin-right: 4px;
+            content: '-';
+            border-radius: 3px;
+            background-color: #1268BC;
+            width: 16px;
+            height: 16px;
+            color: white;
+            text-align: center;
+            line-height: 1;
+          }
+        }
+      }
 
-    .total {
-      font-weight: bold;
-      background-color: #EEEEEE;
-      td {
-        padding: 6px 4px;
-        border-top: 1px solid #DDDDDD;
-        border-bottom: 1px solid #DDDDDD;
-      }    
-    }
+      .total {
+        font-weight: bold;
+        background-color: #EEEEEE;
+        td {
+          padding: 6px 4px;
+          border-top: 1px solid #DDDDDD;
+          border-bottom: 1px solid #DDDDDD;
+        }    
+      }
+  
+      .total--numeric {
+        text-align: right;
+      }
 
-    .total--numeric {
-      text-align: right;
+      tfoot {
+        background-color: #333333;
+        color: white;
+
+        .total {
+          background-color: #333333;
+        }
+      }
     }
   }
 }
