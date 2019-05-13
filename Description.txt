@@ -1,13 +1,13 @@
 Description
 ====
 
-The application illustrates a sequence of examples of pivot tables with various configurations. Specifically, row and column dimensions as well as the metric are configurable parameters for a table. Each example will render as a DataBoundPivotComponent which requests (on mount) the data necessary to render the table in the respective configuration. This is then supplied to the pure PivotTable component which synchronously generates an HTML table styled according to specification.
+The application illustrates a sequence of examples of pivot tables with various configurations. Specifically, row and column dimensions as well as the metric are configurable parameters for a table. Each example will render as a DataBoundPivotComponent which requests (on mount) the data necessary to render the table in the respective configuration. This is then supplied to the pure PivotTable component which synchronously generates an HTML table styled according to specification (sass based style sheet).
 
 The table configuration is captured in a URL - the table's data source. A DataBoundPivotComponent manages the data requirements of pivot tables using a simple "fetch" call. The receipt of this data signals a state update and a render of the PivotTable. "fetch-mock" was utilised to intercept the fetch call (which represents the boundary between client and server side computation) and handle the request client side. 
 
 The response is a minimal data structure extracted from the entries in sales-orders.json. Whilst the traversal and expansion of this structure occurs on the client side, the server is only tasked with querying and accumulating the resulting data set.
 
-Since dimensions are configurable, rendering the table requires recursive traversals of both row and column dimensions, served as hierarchical structures with depth equal to rowDimensions.length and columnDimensions.length respectively. An initial stage is also consider where properties required for colSpan and rowSpan are computed (i.e. leafDescendantCount) - this is also achieve using recursive routines.
+Since dimensions are configurable, rendering the table requires recursive traversals of both row and column dimensions, served as hierarchical structures with depth equal to (rowDimensions.length + columnDimension.length + 1) and columnDimensions.length respectively. An initial stage is also considered where properties required for colSpan and rowSpan are computed (i.e. leafDescendantCount) - this is also achieved using recursive routines.
 
 Limitations
 ====
@@ -33,5 +33,5 @@ Next Steps
   - Implement a paging strategy such that data can be progressively loaded in a table;
 3. Aesthetic enhancements and more features:
   - 'Sticky' grand totals;
-  - Interactive configuration builder.
-  - Selection and transformations (e.g. filter, sort on columns, rows);
+  - Interactive configuration builder;
+  - Selection and transformations (e.g. filter, sort on columns, rows).
